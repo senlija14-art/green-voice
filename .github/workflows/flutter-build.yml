@@ -3,6 +3,9 @@ name: Ador Android Build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -12,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Ador Source
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -20,28 +23,26 @@ jobs:
         with:
           channel: stable
 
-      - name: Create Flutter Build Project
+      - name: Create Android Project
         run: |
-          flutter create \
-            --platforms=android \
-            --org com.ador.live \
-            build_app
+          flutter create --platforms=android --org com.ador.live app
 
-      - name: Copy Ador App Code
+      - name: Copy Ador Source Code
         run: |
-          mkdir -p build_app/lib
-          cp -r lib/. build_app/lib/
+          cp pubspec.yaml app/pubspec.yaml
+          rm -rf app/lib
+          cp -r lib app/lib
 
       - name: Install Dependencies
-        working-directory: build_app
+        working-directory: app
         run: flutter pub get
 
       - name: Build Ador APK
-        working-directory: build_app
+        working-directory: app
         run: flutter build apk --release
 
       - name: Upload Ador APK
         uses: actions/upload-artifact@v4
         with:
           name: Ador-Android
-          path: build_app/build/app/outputs/flutter-apk/app-release.apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
