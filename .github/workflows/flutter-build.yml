@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Ador Source
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -20,23 +20,28 @@ jobs:
         with:
           channel: stable
 
-      - name: Create Fresh Ador Project
+      - name: Create Flutter Build Project
         run: |
           flutter create \
             --platforms=android \
             --org com.ador.live \
-            app
+            build_app
+
+      - name: Copy Ador App Code
+        run: |
+          mkdir -p build_app/lib
+          cp -r lib/. build_app/lib/
 
       - name: Install Dependencies
-        working-directory: app
+        working-directory: build_app
         run: flutter pub get
 
-      - name: Build Android APK
-        working-directory: app
+      - name: Build Ador APK
+        working-directory: build_app
         run: flutter build apk --release
 
       - name: Upload Ador APK
         uses: actions/upload-artifact@v4
         with:
           name: Ador-Android
-          path: app/build/app/outputs/flutter-apk/app-release.apk
+          path: build_app/build/app/outputs/flutter-apk/app-release.apk
