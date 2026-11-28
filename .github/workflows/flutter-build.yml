@@ -1,0 +1,42 @@
+
+name: Ador Android Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Fresh Ador Project
+        run: |
+          flutter create \
+            --platforms=android \
+            --org com.ador.live \
+            app
+
+      - name: Install Dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build Android APK
+        working-directory: app
+        run: flutter build apk --release
+
+      - name: Upload Ador APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ador-Android
+          path: app/build/app/outputs/flutter-apk/app-release.apk
